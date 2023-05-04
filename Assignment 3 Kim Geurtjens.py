@@ -195,3 +195,41 @@ plt.legend()
 plt.title("Forecast of renewable energy consumption Congo, including CI")
 plt.savefig("forecast_congo.png")
 plt.show()
+
+# Perform fitting on a country in yellow cluster (with index 8336)
+renewable_ind = renewable.loc[(renewable["Country Name"] == "India")]
+tr_ind = transposed_df(renewable_ind)
+
+plt.figure()
+plt.plot(tr_ind["Year"], tr_ind["India"])
+plt.xlim(1990, 2019)
+plt.xlabel("Year")
+plt.ylabel(
+    "Renewable energy consumption (% of total)")
+plt.title("Renewable energy consumption of India over time")
+plt.savefig("renewable_india.png")
+plt.show()
+
+# Fit polynomial
+param, covar = opt.curve_fit(poly, tr_ind["Year"], tr_ind["India"])
+
+sigma = np.sqrt(np.diag(covar))
+print(sigma)
+year = np.arange(1990, 2030)
+forecast = poly(year, *param)
+low, up = err.err_ranges(year, poly, param, sigma)
+
+tr_ind["fit"] = poly(tr_ind["Year"], *param)
+
+plt.figure()
+plt.plot(tr_ind["Year"], tr_ind["India"], label="renewable")
+plt.plot(year, forecast, label="forecast")
+plt.fill_between(year, low, up, color="yellow", alpha=0.7)
+plt.xlabel("Year")
+plt.ylabel("Renewable energy consumption (% of total)")
+plt.xlim(1990, 2029)
+plt.ylim(0, 100)
+plt.legend()
+plt.title("Forecast of renewable energy consumption India, including CI")
+plt.savefig("forecast_india.png")
+plt.show()
